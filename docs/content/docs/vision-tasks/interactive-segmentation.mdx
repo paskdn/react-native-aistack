@@ -1,0 +1,112 @@
+---
+title: Interactive Segmentation (Android Only)
+description: Segment images based on user interaction.
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { File, Folder } from 'fumadocs-ui/components/files';
+
+The `useInteractiveSegmenter` hook lets you segment images based on user interaction, such as a tap or a click.
+
+## Usage
+
+Here is a basic example of how to use the `useInteractiveSegmenter` hook:
+
+```tsx
+import { useInteractiveSegmenter, type InteractiveSegmenterResult, type RegionOfInterest } from 'react-native-aistack';
+import { View, Button, Text, Image } from 'react-native';
+
+const MyComponent = () => {
+  const { segment, isLoading, error } = useInteractiveSegmenter(
+    { uri: 'https://storage.googleapis.com/mediapipe-models/interactive_segmenter/magic_touch/float32/latest/magic_touch.tflite' },
+    { outputCategoryMask: true }
+  );
+
+  const handleSegment = async () => {
+    try {
+      const regionOfInterest: RegionOfInterest = { point: { x: 0.5, y: 0.5 } };
+      const result:InteractiveSegmenterResult = await segment({ uri: 'https://your-image-url.com/image.jpg' }, regionOfInterest);
+      console.log('Segmentation result:', result);
+    } catch (e) {
+      console.error('Segmentation failed:', e);
+    }
+  };
+
+  return (
+    <View>
+      <Button
+        title="Segment Image Interactively"
+        onPress={handleSegment}
+        disabled={isLoading}
+      />
+      {isLoading && <Text>Loading model...</Text>}
+      {error && <Text>Error: {error.message}</Text>}
+    </View>
+  );
+};
+```
+
+## Model
+
+The `useInteractiveSegmenter` hook requires a trained interactive segmentation model in TFLite format.
+
+### Model Source
+
+You can provide the model using one of the following sources:
+
+- **URI:** The model is hosted on a remote server.
+- **File Path:** The model is stored on the device's file system.
+- **Bundle:** The model is included in your app's assets.
+
+```ts
+// From a remote URL
+const modelSource = { uri: 'https://example.com/model.tflite' };
+
+// From a local file path
+const modelSource = { filePath: '/path/to/your/model.tflite' };
+
+// From the app bundle
+const modelSource = { bundle: 'magic_touch.tflite' };
+```
+
+For more information on available models, see the [MediaPipe Interactive Segmenter models documentation](https://ai.google.dev/edge/mediapipe/solutions/vision/interactive_segmenter/index#models).
+
+## Configuration
+
+You can configure the interactive segmenter with the following options:
+
+### `InteractiveSegmenterOptions`
+
+| Option                  | Description                                                                                                                                                           | Type      | Default |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ------- |
+| `delegate`              | The delegate to use for inference.                                                                                                                                    | `string`  | `CPU`   |
+| `outputCategoryMask`    | If set to `true`, the output includes a segmentation mask as a uint8 image.                                                                                           | `boolean` | `false` |
+| `outputConfidenceMasks` | If set to `true`, the output includes a segmentation mask as a float value image.                                                                                     | `boolean` | `true`  |
+| `displayNamesLocale`    | The locale to use for display names provided in the metadata of the task's model.                                                                                     | `string`  | `'en'`    |
+
+### `ImagePreprocessingOptions`
+
+| Option      | Description                                | Type     | Default |
+| ----------- | ------------------------------------------ | -------- | ------- |
+| `rotation`  | The rotation to apply to the image in degrees. | `number` | `0`     |
+
+## Result
+
+The `segment` function returns an `InteractiveSegmenterResult` object with the following properties:
+
+### `InteractiveSegmenterResult`
+
+| Property          | Description                                           | Type                 |
+| ----------------- | ----------------------------------------------------- | -------------------- |
+| `categoryMasks`   | A list of category masks, if enabled.                 | `SegmentationMask[]` |
+| `confidenceMasks` | A list of confidence masks, if enabled.               | `SegmentationMask[]` |
+| `timestampMs`     | The timestamp in milliseconds of the image processed. | `number`             |
+
+### `SegmentationMask`
+
+| Property | Description | Type | 
+| --- | --- | --- |
+| `width` | The width of the mask. | `number` |
+| `height` | The height of the mask. | `number` |
+| `mask` | The absolute file path to the temporary image file containing the mask data. | `string` |

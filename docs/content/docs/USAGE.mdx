@@ -1,0 +1,872 @@
+---
+title: Usage
+description: This document describes how to use the features provided by the react-native-aistack library.
+---
+
+# Usage
+
+This document describes how to use the features provided by the react-native-aistack library.
+
+## Implemented Features
+
+<Note>
+  Some features are currently only supported on Android.
+  These are explicitly marked below.
+</Note>
+
+### Face Detection
+
+The `useFaceDetector` hook provides an easy way to detect faces in an image.
+
+**Example:**
+
+```tsx
+import { useState } from 'react';
+import { Text, View, Alert } from 'react-native';
+import {
+  useFaceDetector,
+  type FaceDetectionResult,
+} from 'react-native-aistack';
+import { ImageWithBoundingBoxes } from '../components/ImageWithBoundingBoxes';
+import { Button } from '../components/common/Button';
+
+const imageUri = 'https://your-image-url.com/image.jpg';
+
+export function FaceDetectorScreen() {
+  const [result, setResult] = useState<FaceDetectionResult | null>(null);
+
+  const { detect, isLoading, error } = useFaceDetector(
+    {
+      uri: 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite',
+    },
+    {
+      minDetectionConfidence: 0.5,
+    }
+  );
+
+  const handleDetectImage = async () => {
+    try {
+      const detectionResult = await detect({ uri: imageUri });
+      if (detectionResult) {
+        setResult(detectionResult);
+      }
+    } catch (e) {
+      console.error('Face detection error:', e);
+      Alert.alert(
+        'Detection Error',
+        'Failed to detect faces. Please try again.'
+      );
+    }
+  };
+
+  return (
+    <View>
+      <Button
+        title="Detect Image"
+        onPress={handleDetectImage}
+        disabled={isLoading}
+      />
+      {result && (
+        <ImageWithBoundingBoxes
+          imageUri={imageUri}
+          detectionResult={result}
+        />
+      )}
+    </View>
+  );
+}
+```
+
+### Audio Classification (Android Only)
+
+The `useAudioClassifier` hook provides an easy way to classify audio.
+
+**Example:**
+
+```tsx
+import { useState } from 'react';
+import { Text, View, Alert } from 'react-native';
+import { useAudioClassifier, type Category } from 'react-native-aistack';
+
+const audioAsset = require('../../assets/audio/cat-purring.mp3');
+
+export function AudioClassifierScreen() {
+  const [result, setResult] = useState<ResultState | null>(null);
+
+  const { classify, isLoading, error } = useAudioClassifier(
+    {
+      uri: 'https://storage.googleapis.com/mediapipe-models/audio_classifier/yamnet/float32/1/yamnet.tflite',
+    },
+    {
+      maxResults: 5,
+    }
+  );
+
+  const handleClassifyAudio = async () => {
+    try {
+      const classificationResult = await classify({ uri: audioAsset });
+      if (classificationResult) {
+        setResult(classificationResult);
+      }
+    } catch (e) {
+      console.error('Classification error:', e);
+      Alert.alert(
+        'Classification Error',
+        'Failed to classify audio. Please try again.'
+      );
+    }
+  };
+
+  return (
+    <View>
+      <Button
+        title="Classify Audio"
+        onPress={handleClassifyAudio}
+        disabled={isLoading}
+      />
+      {/* Render your results here */}
+    </View>
+  );
+}
+```
+
+### Face Landmarker (Android Only)
+
+The `useFaceLandmarker` hook provides an easy way to detect face landmarks in an image.
+
+**Example:**
+
+```tsx
+import { useState } from 'react';
+import { Text, View, Alert } from 'react-native';
+import { useFaceLandmarker, type FaceLandmarkerResult } from 'react-native-aistack';
+
+const imageUri = 'https://storage.googleapis.com/mediapipe-assets/portrait.jpg';
+
+export function FaceLandmarkerScreen() {
+  const [result, setResult] = useState<FaceLandmarkerResult | null>(null);
+
+  const { detect, isLoading, error } = useFaceLandmarker(
+    {
+      uri: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task',
+    },
+    {
+      numFaces: 1,
+      outputFaceBlendshapes: true,
+      outputFacialTransformationMatrixes: true,
+      runningMode: 'IMAGE',
+    }
+  );
+
+  const handleDetectImage = async () => {
+    try {
+      const detectionResult = await detect({ uri: imageUri });
+      if (detectionResult) {
+        setResult(detectionResult);
+      }
+    } catch (e) {
+      console.error('Face landmark detection error:', e);
+      Alert.alert(
+        'Detection Error',
+        'Failed to detect face landmarks. Please try again.'
+      );
+    }
+  };
+
+  return (
+    <View>
+      <Button
+        title="Detect Image"
+        onPress={handleDetectImage}
+        disabled={isLoading}
+      />
+      {/* Render your results here */}
+    </View>
+  );
+}
+```
+
+### Face Stylizer (Android Only)
+
+The `useFaceStylizer` hook provides an easy way to stylize a face in an image.
+
+**Example:**
+
+```tsx
+import { useState } from 'react';
+import { Text, View, Alert, Image } from 'react-native';
+import { useFaceStylizer, type FaceStylizerResult } from 'react-native-aistack';
+
+const imageUri = 'https://ai.google.dev/static/mediapipe/images/solutions/face-stylizer-input.png';
+
+export function FaceStylizerScreen() {
+  const [result, setResult] = useState<FaceStylizerResult | null>(null);
+
+  const { stylize, isLoading, error } = useFaceStylizer(
+    {
+      uri: 'https://storage.googleapis.com/mediapipe-models/face_stylizer/blaze_face_stylizer/float32/latest/face_stylizer_color_sketch.task',
+    },
+    {}
+  );
+
+  const handleStylizeImage = async () => {
+    try {
+      const stylizationResult = await stylize({ uri: imageUri });
+      if (stylizationResult) {
+        setResult(stylizationResult);
+      }
+    } catch (e) {
+      console.error('Face stylization error:', e);
+      Alert.alert(
+        'Stylization Error',
+        'Failed to stylize image. Please try again.'
+      );
+    }
+  };
+
+  return (
+    <View>
+      <Button
+        title="Stylize Image"
+        onPress={handleStylizeImage}
+        disabled={isLoading}
+      />
+      {result && result.stylizedImagePath && (
+        <Image
+          source={{ uri: `file://${result.stylizedImagePath}` }}
+          style={{ width: 200, height: 200 }}
+        />
+      )}
+    </View>
+  );
+}
+```
+
+### Gesture Recognizer (Android Only)
+
+The `useGestureRecognizer` hook provides an easy way to recognize hand gestures in an image.
+
+**Example:**
+
+```tsx
+import { useState } from 'react';
+import { Text, View, Alert } from 'react-native';
+import { useGestureRecognizer, type GestureRecognizerResult } from 'react-native-aistack';
+
+const imageUri = 'https://assets.codepen.io/9177687/idea-gcbe74dc69_1920.jpg';
+
+export function GestureRecognizerScreen() {
+  const [result, setResult] = useState<GestureRecognizerResult | null>(null);
+
+  const { recognize, isLoading, error } = useGestureRecognizer(
+    {
+      uri: 'https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/latest/gesture_recognizer.task',
+    },
+    {
+      numHands: 2,
+      minHandDetectionConfidence: 0.5,
+      minHandPresenceConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+      runningMode: 'IMAGE',
+    }
+  );
+
+  const handleRecognizeImage = async () => {
+    try {
+      const recognitionResult = await recognize({ uri: imageUri });
+      if (recognitionResult) {
+        setResult(recognitionResult);
+      }
+    } catch (e) {
+      console.error('Gesture recognition error:', e);
+      Alert.alert(
+        'Recognition Error',
+        'Failed to recognize gestures. Please try again.'
+      );
+    }
+  };
+
+  return (
+    <View>
+      <Button
+        title="Recognize Image"
+        onPress={handleRecognizeImage}
+        disabled={isLoading}
+      />
+      {/* Render your results here */}
+    </View>
+  );
+}
+```
+
+### Hand Landmarker (Android Only)
+
+The `useHandLandmarker` hook provides an easy way to detect hand landmarks in an image.
+
+**Example:**
+
+```tsx
+import { useState } from 'react';
+import { Text, View, Alert } from 'react-native';
+import { useHandLandmarker, type HandLandmarkerResult } from 'react-native-aistack';
+
+const imageUri = 'https://assets.codepen.io/9177687/hand-ge4ca13f5d_1920.jpg';
+
+export function HandLandmarkerScreen() {
+  const [result, setResult] = useState<HandLandmarkerResult | null>(null);
+
+  const { detect, isLoading, error } = useHandLandmarker(
+    {
+      uri: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task',
+    },
+    {
+      numHands: 2,
+      minHandDetectionConfidence: 0.5,
+      minHandPresenceConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+      runningMode: 'IMAGE',
+    }
+  );
+
+  const handleDetectImage = async () => {
+    try {
+      const detectionResult = await detect({ uri: imageUri });
+      if (detectionResult) {
+        setResult(detectionResult);
+      }
+    } catch (e) {
+      console.error('Hand landmark detection error:', e);
+      Alert.alert(
+        'Detection Error',
+        'Failed to detect hand landmarks. Please try again.'
+      );
+    }
+  };
+
+  return (
+    <View>
+      <Button
+        title="Detect Image"
+        onPress={handleDetectImage}
+        disabled={isLoading}
+      />
+      {/* Render your results here */}
+    </View>
+  );
+}
+```
+
+### Image Classifier (Android Only)
+
+The `useImageClassifier` hook provides an easy way to classify an image.
+
+**Example:**
+
+```tsx
+import { useState } from 'react';
+import { Text, View, Alert } from 'react-native';
+import { useImageClassifier, type ImageClassifierResult } from 'react-native-aistack';
+
+const imageUri = 'https://assets.codepen.io/9177687/dog_flickr_publicdomain.jpeg';
+
+export function ImageClassifierScreen() {
+  const [result, setResult] = useState<ImageClassifierResult | null>(null);
+
+  const { classify, isLoading, error } = useImageClassifier(
+    {
+      uri: 'https://storage.googleapis.com/mediapipe-models/image_classifier/efficientnet_lite0/float32/latest/efficientnet_lite0.tflite',
+    },
+    {
+      maxResults: 5,
+      delegate: 'CPU',
+    }
+  );
+
+  const handleClassifyImage = async () => {
+    try {
+      const classificationResult = await classify({ uri: imageUri });
+      if (classificationResult) {
+        setResult(classificationResult);
+      }
+    } catch (e) {
+      console.error('Image classification error:', e);
+      Alert.alert(
+        'Classification Error',
+        'Failed to classify image. Please try again.'
+      );
+    }
+  };
+
+  return (
+    <View>
+      <Button
+        title="Classify Image"
+        onPress={handleClassifyImage}
+        disabled={isLoading}
+      />
+      {/* Render your results here */}
+    </View>
+  );
+}
+```
+
+### Image Embedder (Android Only)
+
+The `useImageEmbedder` hook provides an easy way to embed an image and calculate the cosine similarity between two embeddings.
+
+**Example:**
+
+```tsx
+import { useState } from 'react';
+import { Text, View, Alert } from 'react-native';
+import { useImageEmbedder, type Embedding } from 'react-native-aistack';
+
+const imageUri1 = 'https://assets.codepen.io/9177687/dog_flickr_publicdomain.jpeg';
+const imageUri2 = 'https://assets.codepen.io/9177687/cat_flickr_publicdomain.jpeg';
+
+export function ImageEmbedderScreen() {
+  const [embedding1, setEmbedding1] = useState<Embedding | null>(null);
+  const [embedding2, setEmbedding2] = useState<Embedding | null>(null);
+  const [similarity, setSimilarity] = useState<number | null>(null);
+
+  const { embed, cosineSimilarity, isLoading, error } = useImageEmbedder(
+    {
+      uri: 'https://storage.googleapis.com/mediapipe-models/image_embedder/mobilenet_v3_small/float32/latest/mobilenet_v3_small.tflite',
+    },
+    {
+      l2Normalize: true,
+      quantize: false,
+      runningMode: 'IMAGE',
+    }
+  );
+
+  const handleEmbedImages = async () => {
+    try {
+      const result1 = await embed({ uri: imageUri1 });
+      if (result1 && result1.embeddings[0]) {
+        setEmbedding1(result1.embeddings[0]);
+      }
+
+      const result2 = await embed({ uri: imageUri2 });
+      if (result2 && result2.embeddings[0]) {
+        setEmbedding2(result2.embeddings[0]);
+      }
+    } catch (e) {
+      console.error('Image embedding error:', e);
+      Alert.alert(
+        'Embedding Error',
+        'Failed to embed image. Please try again.'
+      );
+    }
+  };
+
+  const handleCompareEmbeddings = async () => {
+    if (embedding1 && embedding2) {
+      const sim = await cosineSimilarity(embedding1, embedding2);
+      setSimilarity(sim);
+    }
+  };
+
+  return (
+    <View>
+      <Button title="Embed Images" onPress={handleEmbedImages} disabled={isLoading} />
+      <Button
+        title="Compare Embeddings"
+        onPress={handleCompareEmbeddings}
+        disabled={!embedding1 || !embedding2}
+      />
+      {similarity !== null && <Text>Similarity: {similarity}</Text>}
+    </View>
+  );
+}
+```
+
+### Image Segmenter (Android Only)
+
+The `useImageSegmenter` hook provides an easy way to segment an image.
+
+**Example:**
+
+```tsx
+import { useState } from 'react';
+import { Text, View, Alert, Image } from 'react-native';
+import { useImageSegmenter, type ImageSegmenterResult } from 'react-native-aistack';
+
+const imageUri = 'https://assets.codepen.io/9177687/dog_flickr_publicdomain.jpeg';
+
+export function ImageSegmenterScreen() {
+  const [result, setResult] = useState<ImageSegmenterResult | null>(null);
+
+  const { segment, isLoading, error } = useImageSegmenter(
+    {
+      uri: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite',
+    },
+    {
+      outputCategoryMask: true,
+      runningMode: 'IMAGE',
+    }
+  );
+
+  const handleSegmentImage = async () => {
+    try {
+      const segmentationResult = await segment({ uri: imageUri });
+      if (segmentationResult) {
+        setResult(segmentationResult);
+      }
+    } catch (e) {
+      console.error('Image segmentation error:', e);
+      Alert.alert(
+        'Segmentation Error',
+        'Failed to segment image. Please try again.'
+      );
+    }
+  };
+
+  return (
+    <View>
+      <Button
+        title="Segment Image"
+        onPress={handleSegmentImage}
+        disabled={isLoading}
+      />
+      {result && result.categoryMasks && result.categoryMasks[0] && (
+        <Image
+          source={{ uri: `file://${result.categoryMasks[0].mask}` }}
+          style={{ width: 200, height: 200 }}
+        />
+      )}
+    </View>
+  );
+}
+```
+
+### Interactive Segmenter (Android Only)
+
+The `useInteractiveSegmenter` hook provides an easy way to segment an image based on a point of interest.
+
+**Example:**
+
+```tsx
+import { useState } from 'react';
+import { Text, View, Alert, Image, PanResponder } from 'react-native';
+import {
+  useInteractiveSegmenter,
+  type InteractiveSegmenterResult,
+  type RegionOfInterest,
+} from 'react-native-aistack';
+
+const imageUri = 'https://assets.codepen.io/9177687/coupledog.jpeg';
+
+export function InteractiveSegmenterScreen() {
+  const [result, setResult] = useState<InteractiveSegmenterResult | null>(null);
+  const [pointOfInterest, setPointOfInterest] = useState<{ x: number; y: number } | null>(null);
+
+  const { segment, isLoading, error } = useInteractiveSegmenter(
+    {
+      uri: 'https://storage.googleapis.com/mediapipe-models/interactive_segmenter/magic_touch/float32/latest/magic_touch.tflite',
+    },
+    {
+      outputCategoryMask: true,
+    }
+  );
+
+  const handleSegmentImage = async (x: number, y: number) => {
+    try {
+      const regionOfInterest: RegionOfInterest = {
+        point: { x, y },
+      };
+      const segmentationResult = await segment({ uri: imageUri }, regionOfInterest);
+      if (segmentationResult) {
+        setResult(segmentationResult);
+      }
+    } catch (e) {
+      console.error('Interactive segmentation error:', e);
+      Alert.alert(
+        'Segmentation Error',
+        'Failed to perform interactive segmentation. Please try again.'
+      );
+    }
+  };
+
+  const panResponder = PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onPanResponderGrant: (event) => {
+      const { locationX, locationY } = event.nativeEvent;
+      // Assuming the image is 200x200
+      handleSegmentImage(locationX / 200, locationY / 200);
+    },
+  });
+
+  return (
+    <View>
+      <View {...panResponder.panHandlers}>
+        <Image source={{ uri: imageUri }} style={{ width: 200, height: 200 }} />
+      </View>
+      {result && result.categoryMasks && result.categoryMasks[0] && (
+        <Image
+          source={{ uri: `file://${result.categoryMasks[0].mask}` }}
+          style={{ width: 200, height: 200 }}
+        />
+      )}
+    </View>
+  );
+}
+```
+
+### Language Detector (Android Only)
+
+The `useLanguageDetector` hook provides an easy way to detect the language of a given text.
+
+**Example:**
+
+```tsx
+import { useState } from 'react';
+import { Text, View, TextInput, Alert } from 'react-native';
+import { useLanguageDetector, type LanguagePrediction } from 'react-native-aistack';
+
+export function LanguageDetectorScreen() {
+  const [inputText, setInputText] = useState('Bonjour le monde');
+  const [result, setResult] = useState<LanguagePrediction[] | null>(null);
+
+  const { detect, isLoading, error } = useLanguageDetector({
+    uri: 'https://storage.googleapis.com/mediapipe-models/language_detector/language_detector/float32/1/language_detector.tflite',
+  });
+
+  const handleDetect = async () => {
+    const detectionResult = await detect(inputText);
+    if (detectionResult) {
+      setResult(detectionResult.languages);
+    }
+  };
+
+  return (
+    <View>
+      <TextInput value={inputText} onChangeText={setInputText} />
+      <Button title="Detect" onPress={handleDetect} disabled={isLoading} />
+      {result && <Text>Languages: {JSON.stringify(result)}</Text>}
+    </View>
+  );
+}
+```
+
+### LLM Inference (Android Only)
+
+The `useLlmInference` hook provides a way to perform LLM inference.
+
+**Example:**
+
+```tsx
+import { useState } from 'react';
+import { Text, View, TextInput, Button } from 'react-native';
+import { useLlmInference } from 'react-native-aistack';
+
+const MODEL_PATH = {
+  filePath: '/path/to/your/model.task',
+};
+
+export function LlmInferenceScreen() {
+  const [prompt, setPrompt] = useState('Tell me a joke');
+  const [result, setResult] = useState('');
+  const { llmInference, isLoading, error } = useLlmInference(MODEL_PATH);
+
+  const handleGenerate = async () => {
+    if (!llmInference) return;
+    const response = await llmInference.generateResponse(prompt);
+    setResult(response.response);
+  };
+
+  return (
+    <View>
+      <TextInput value={prompt} onChangeText={setPrompt} multiline />
+      <Button title="Generate" onPress={handleGenerate} disabled={isLoading || !llmInference} />
+      {result && <Text>{result}</Text>}
+    </View>
+  );
+}
+```
+
+### Object Detector
+
+The `useObjectDetector` hook provides an easy way to detect objects in an image.
+
+**Example:**
+
+```tsx
+import { useState } from 'react';
+import { Text, View, Alert } from 'react-native';
+import { useObjectDetector, type ObjectDetectorResult } from 'react-native-aistack';
+
+const imageUri = 'https://assets.codepen.io/9177687/coupledog.jpeg';
+
+export function ObjectDetectorScreen() {
+  const [result, setResult] = useState<ObjectDetectorResult | null>(null);
+
+  const { detect, isLoading, error } = useObjectDetector(
+    {
+      uri: 'https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float16/latest/efficientdet_lite0.tflite',
+    },
+    {
+      maxResults: 5,
+      runningMode: 'IMAGE',
+    }
+  );
+
+  const handleDetectImage = async () => {
+    try {
+      const detectionResult = await detect({ uri: imageUri });
+      if (detectionResult) {
+        setResult(detectionResult);
+      }
+    } catch (e) {
+      console.error('Object detection error:', e);
+      Alert.alert(
+        'Detection Error',
+        'Failed to detect objects. Please try again.'
+      );
+    }
+  };
+
+  return (
+    <View>
+      <Button
+        title="Detect Image"
+        onPress={handleDetectImage}
+        disabled={isLoading}
+      />
+      {/* Render your results here */}
+    </View>
+  );
+}
+```
+
+### Pose Landmarker (Android Only)
+
+The `usePoseLandmarker` hook provides an easy way to detect pose landmarks in an image.
+
+**Example:**
+
+```tsx
+import { useState } from 'react';
+import { Text, View, Alert } from 'react-native';
+import { usePoseLandmarker, type PoseLandmarkerResult } from 'react-native-aistack';
+
+const imageUri = 'https://assets.codepen.io/9177687/woman-g1af8d3deb_640.jpg';
+
+export function PoseLandmarkerScreen() {
+  const [result, setResult] = useState<PoseLandmarkerResult | null>(null);
+
+  const [detect, { isLoading, error }] = usePoseLandmarker(
+    {
+      uri: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/latest/pose_landmarker_lite.task',
+    },
+    {
+      numPoses: 1,
+      outputSegmentationMasks: true,
+      runningMode: 'IMAGE',
+      delegate: 'CPU',
+    }
+  );
+
+  const handleDetectImage = async () => {
+    try {
+      const detectionResult = await detect({ uri: imageUri });
+      if (detectionResult) {
+        setResult(detectionResult);
+      }
+    } catch (e) {
+      console.error('Pose landmark detection error:', e);
+      Alert.alert(
+        'Detection Error',
+        'Failed to detect pose landmarks. Please try again.'
+      );
+    }
+  };
+
+  return (
+    <View>
+      <Button
+        title="Detect Image"
+        onPress={handleDetectImage}
+        disabled={isLoading}
+      />
+      {/* Render your results here */}
+    </View>
+  );
+}
+```
+
+### Text Classifier
+
+The `useTextClassifier` hook provides an easy way to classify text.
+
+**Example:**
+
+```tsx
+import { useState } from 'react';
+import { Text, View, TextInput, Alert } from 'react-native';
+import { useTextClassifier, type Category } from 'react-native-aistack';
+
+export function TextClassifierScreen() {
+  const [inputText, setInputText] = useState('This is a fantastic movie!');
+  const [result, setResult] = useState<Category[] | null>(null);
+
+  const { classify, isLoading, error } = useTextClassifier(
+    {
+      uri: 'https://storage.googleapis.com/mediapipe-models/text_classifier/bert_classifier/float32/latest/bert_classifier.tflite',
+    },
+    { maxResults: 3 }
+  );
+
+  const handleClassify = async () => {
+    const classificationResult = await classify(inputText);
+    if (classificationResult) {
+      setResult(classificationResult.classifications);
+    }
+  };
+
+  return (
+    <View>
+      <TextInput value={inputText} onChangeText={setInputText} />
+      <Button title="Classify" onPress={handleClassify} disabled={isLoading} />
+      {result && <Text>Result: {JSON.stringify(result)}</Text>}
+    </View>
+  );
+}
+```
+
+### Text Embedder
+
+The `useTextEmbedder` hook provides an easy way to embed text and compare the similarity between two embeddings.
+
+**Example:**
+
+```tsx
+import { useState } from 'react';
+import { Text, View, TextInput, Button } from 'react-native';
+import { useTextEmbedder } from 'react-native-aistack';
+
+export function TextEmbedderScreen() {
+  const [text1, setText1] = useState('What a great and fantastic trip.');
+  const [text2, setText2] = useState("it's a charming and often affecting journey.");
+  const [similarity, setSimilarity] = useState<number | null>(null);
+
+  const { compare, isLoading, error } = useTextEmbedder({
+    uri: 'https://storage.googleapis.com/mediapipe-models/text_embedder/universal_sentence_encoder/float32/latest/universal_sentence_encoder.tflite',
+  });
+
+  const handleCompare = async () => {
+    const sim = await compare(text1, text2);
+    setSimilarity(sim);
+  };
+
+  return (
+    <View>
+      <TextInput value={text1} onChangeText={setText1} />
+      <TextInput value={text2} onChangeText={setText2} />
+      <Button title="Compare" onPress={handleCompare} disabled={isLoading} />
+      {similarity !== null && <Text>Similarity: {similarity}</Text>}
+    </View>
+  );
+}
+```
+

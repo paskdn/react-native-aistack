@@ -1,0 +1,156 @@
+---
+title: Overview
+description: React Native AI Stack - On-device AI capabilities for mobile applications
+---
+
+# React Native AI Stack
+
+React Native AI Stack is a comprehensive library that provides easy-to-use hooks and components for integrating MediaPipe's on-device AI capabilities into your mobile applications. Built with performance in mind, it leverages the power of MediaPipe Tasks and modern React Native patterns to bring high-performance machine learning features directly to your users' devices.
+
+## Key Features
+
+- **🚀 High Performance**: Built with Nitro modules for maximum performance with minimal overhead
+- **📱 Cross-Platform**: Full support for both Android and iOS platforms
+- **🔄 React Hooks**: Intuitive React hooks for managing AI model lifecycle and state
+- **⚡ AssetSource Integration**: Efficient handling of various asset types (images, audio) via `AssetSource`
+- **🧠 Model Management**: Intelligent model loading, caching, and unloading for optimal performance
+- **🔧 TypeScript Support**: Full TypeScript support with generated type definitions
+- **🎯 Comprehensive AI Tasks**: Access to a wide range of MediaPipe AI capabilities
+
+## AI Task Categories
+
+### Generative AI Tasks
+
+- **[LLM Inference](/docs/generative-ai-tasks/llm-inference)**: On-device large language model inference
+
+### Vision Tasks
+
+- **[Object Detection](/docs/vision-tasks/object-detection)**: Detect and locate objects in images
+- **[Image Classification](/docs/vision-tasks/image-classification)**: Classify images into predefined categories
+- **[Image Segmentation](/docs/vision-tasks/image-segmentation)**: Segment images into different regions
+- **[Interactive Segmentation](/docs/vision-tasks/interactive-segmentation)**: Segment images based on user interaction
+- **[Gesture Recognition](/docs/vision-tasks/gesture-recognition)**: Recognize hand gestures
+- **[Hand Landmark Detection](/docs/vision-tasks/hand-landmark-detection)**: Detect hand landmarks and poses
+- **[Image Embedding](/docs/vision-tasks/image-embedding)**: Generate embeddings for image similarity
+- **[Face Detection](/docs/vision-tasks/face-detection)**: Detect faces in images
+- **[Face Landmark Detection](/docs/vision-tasks/face-landmark-detection)**: Detect facial landmarks and expressions
+- **[Pose Landmark Detection](/docs/vision-tasks/pose-landmark-detection)**: Detect human pose landmarks
+- **[Face Stylization](/docs/vision-tasks/face-stylization)**: Apply artistic styles to faces
+
+### Text Tasks
+
+- **[Text Classification](/docs/text-tasks/text-classification)**: Classify text into categories or sentiment
+- **[Text Embedding](/docs/text-tasks/text-embedding)**: Generate text embeddings for similarity comparison
+- **[Language Detection](/docs/text-tasks/language-detection)**: Detect the language of input text
+
+### Audio Tasks
+
+- **[Audio Classification](/docs/audio-tasks/audio-classification)**: Classify audio into different categories or events
+
+## Getting Started
+
+To get started with React Native AI Stack, you'll typically:
+
+1. **Install the library** in your React Native project
+2. **Choose an AI task** you want to implement
+3. **Import the relevant hook** (e.g., `useTextClassifier`, `useFaceDetector`)
+4. **Provide a model source** (local asset, remote URL, or file path)
+5. **Call the task-specific functions** (e.g., `classify`, `detect`, `embed`)
+
+### Installation
+
+```bash
+npm install react-native-aistack
+```
+
+### Basic Usage Example
+
+```typescript
+import { useTextClassifier } from 'react-native-aistack';
+
+const MyComponent = () => {
+  const { classify, isLoading, error } = useTextClassifier(
+    { bundle: 'model.tflite' },
+    { maxResults: 5 }
+  );
+
+  const handleClassify = async () => {
+    try {
+      const result = await classify('Your text here');
+      console.log('Classification result:', result);
+    } catch (error) {
+      console.error('Classification failed:', error);
+    }
+  };
+
+  return (
+    <View>
+      <Button
+        title="Classify Text"
+        onPress={handleClassify}
+        disabled={isLoading}
+      />
+    </View>
+  );
+};
+```
+
+### Usage
+
+For more detailed usage examples, see the [Usage Guide](/docs/USAGE).
+
+## Model Sources
+
+React Native AI Stack supports various ways to provide your AI models:
+
+- **`UriModelSource`**: Load models from a remote URL with automatic downloading and caching
+- **`BundleModelSource`**: Load models from your app's asset bundle (e.g., `android/src/main/assets`)
+- **`FilePathModelSource`**: Load models from a local file path on the device
+
+```typescript
+// Remote URL with caching
+const remoteModel = { uri: 'https://example.com/model.tflite' };
+
+// App bundle asset
+const bundleModel = { bundle: 'model.tflite' };
+
+// Local file path
+const fileModel = { filePath: '/path/to/model.tflite' };
+```
+
+## Performance Optimizations
+
+React Native AI Stack is built with performance in mind:
+
+- **Nitro Modules**: Uses Nitro for high-performance native module communication
+- **ArrayBuffer**: Leverages `ArrayBuffer` for zero-copy data transfer
+- **Asynchronous Operations**: All AI operations are asynchronous to prevent UI blocking
+- **Model Caching**: Intelligent model caching to minimize load times
+- **Memory Management**: Efficient memory usage with automatic cleanup
+
+## Architecture
+
+The library is built on top of:
+
+- **MediaPipe**: Google's cross-platform framework for building multimodal applied ML pipelines
+- **React Native**: For cross-platform mobile development
+- **Nitro Modules**: For high-performance native module communication
+- **TypeScript**: For type safety and better developer experience
+
+## Best Practices
+
+- Use `AssetSource` for large data transfers (images, audio)
+- Implement proper error handling for AI operations
+- Cache models locally for better performance
+- Use async/await for all AI operations
+- Monitor memory usage for long-running applications
+
+## Community and Support
+
+React Native AI Stack is actively developed and maintained. For support, questions, or contributions:
+
+- Check the [GitHub repository](https://github.com/margelo/react-native-aistack)
+- Join the [Margelo Discord community](https://discord.gg/margelo)
+- Report issues on GitHub
+
+Let's dive into the specifics of each AI task category!

@@ -1,0 +1,117 @@
+---
+title: Image Embedding (Android Only)
+description: Create a numeric representation of an image.
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { File, Folder } from 'fumadocs-ui/components/files';
+
+The `useImageEmbedder` hook lets you create a numeric representation of an image, which is useful in accomplishing various ML-based image tasks.
+
+## Usage
+
+Here is a basic example of how to use the `useImageEmbedder` hook:
+
+```tsx
+import { useImageEmbedder, type ImageEmbedderResult } from 'react-native-aistack';
+import { View, Button, Text } from 'react-native';
+
+const MyComponent = () => {
+  const { embed, cosineSimilarity, isLoading, error } = useImageEmbedder({
+    uri: 'https://storage.googleapis.com/mediapipe-models/image_embedder/mobilenet_v3_small/float32/latest/mobilenet_v3_small.tflite',
+  });
+
+  const handleEmbed = async () => {
+    try {
+      const result1:ImageEmbedderResult = await embed({ uri: 'https://your-image-url.com/image1.jpg' });
+      const result2:ImageEmbedderResult = await embed({ uri: 'https://your-image-url.com/image2.jpg' });
+
+      if (result1.embeddings.length > 0 && result2.embeddings.length > 0) {
+        const similarity = await cosineSimilarity(
+          result1.embeddings[0],
+          result2.embeddings[0]
+        );
+        console.log('Similarity:', similarity);
+      }
+    } catch (e) {
+      console.error('Embedding failed:', e);
+    }
+  };
+
+  return (
+    <View>
+      <Button
+        title="Embed Image and Compare"
+        onPress={handleEmbed}
+        disabled={isLoading}
+      />
+      {isLoading && <Text>Loading model...</Text>}
+      {error && <Text>Error: {error.message}</Text>}
+    </View>
+  );
+};
+```
+
+## Model
+
+The `useImageEmbedder` hook requires a trained image embedder model in TFLite format.
+
+### Model Source
+
+You can provide the model using one of the following sources:
+
+- **URI:** The model is hosted on a remote server.
+- **File Path:** The model is stored on the device's file system.
+- **Bundle:** The model is included in your app's assets.
+
+```ts
+// From a remote URL
+const modelSource = { uri: 'https://example.com/model.tflite' };
+
+// From a local file path
+const modelSource = { filePath: '/path/to/your/model.tflite' };
+
+// From the app bundle
+const modelSource = { bundle: 'mobilenet_v3_small.tflite' };
+```
+
+For more information on available models, see the [MediaPipe Image Embedder models documentation](https://ai.google.dev/edge/mediapipe/solutions/vision/image_embedder/index#models).
+
+## Configuration
+
+You can configure the image embedder with the following options:
+
+### `ImageEmbedderOptions`
+
+| Option        | Description                                                                          | Type      | Default |
+| ------------- | ------------------------------------------------------------------------------------ | --------- | ------- |
+| `runningMode` | The running mode for the task. Only `IMAGE` mode is supported.                       | `string`  | `IMAGE` |
+| `l2Normalize` | Whether to normalize the returned feature vector with L2 norm.                       | `boolean` | `false` |
+| `quantize`    | Whether the returned embedding should be quantized to bytes via scalar quantization. | `boolean` | `false` |
+
+### `ImagePreprocessingOptions`
+
+| Option      | Description                                | Type     | Default |
+| ----------- | ------------------------------------------ | -------- | ------- |
+| `rotation`  | The rotation to apply to the image in degrees. | `number` | `0`     |
+
+## Result
+
+The `embed` function returns an `ImageEmbedderResult` object with the following properties:
+
+### `ImageEmbedderResult`
+
+| Property      | Description                                           | Type          |
+| ------------- | ----------------------------------------------------- | ------------- |
+| `embeddings`  | A list of embeddings.                                 | `Embedding[]` |
+| `timestampMs` | The timestamp in milliseconds of the image processed. | `number`      |
+
+### `Embedding`
+
+| Property            | Description                                                                    | Type       |
+| ------------------- | ------------------------------------------------------------------------------ | ---------- |
+| `floatEmbedding`    | The feature vector in floating-point form.                                     | `number[]` |
+| `quantizedEmbedding`| The feature vector in scalar-quantized form.                                   | `number[]` |
+| `headIndex`         | The index for the head that produced this embedding.                           | `number`   |
+| `headName`          | The name of the head that produced this embedding.                             | `string`   |

@@ -1,0 +1,112 @@
+---
+title: Image Segmentation (Android Only)
+description: Divide images into regions based on predefined categories.
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { File, Folder } from 'fumadocs-ui/components/files';
+
+The `useImageSegmenter` hook lets you divide images into regions based on predefined categories. You can use this functionality to identify specific objects or textures, and then apply visual effects such as background blurring.
+
+## Usage
+
+Here is a basic example of how to use the `useImageSegmenter` hook:
+
+```tsx
+import { useImageSegmenter, type ImageSegmenterResult } from 'react-native-aistack';
+import { View, Button, Text, Image } from 'react-native';
+
+const MyComponent = () => {
+  const { segment, isLoading, error } = useImageSegmenter(
+    { uri: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite' },
+    { outputCategoryMask: true }
+  );
+
+  const handleSegment = async () => {
+    try {
+      const result:ImageSegmenterResult = await segment({ uri: 'https://your-image-url.com/image.jpg' });
+      console.log('Segmentation result:', result);
+    } catch (e) {
+      console.error('Segmentation failed:', e);
+    }
+  };
+
+  return (
+    <View>
+      <Button
+        title="Segment Image"
+        onPress={handleSegment}
+        disabled={isLoading}
+      />
+      {isLoading && <Text>Loading model...</Text>}
+      {error && <Text>Error: {error.message}</Text>}
+    </View>
+  );
+};
+```
+
+## Model
+
+The `useImageSegmenter` hook requires a trained image segmentation model in TFLite format.
+
+### Model Source
+
+You can provide the model using one of the following sources:
+
+- **URI:** The model is hosted on a remote server.
+- **File Path:** The model is stored on the device's file system.
+- **Bundle:** The model is included in your app's assets.
+
+```ts
+// From a remote URL
+const modelSource = { uri: 'https://example.com/model.tflite' };
+
+// From a local file path
+const modelSource = { filePath: '/path/to/your/model.tflite' };
+
+// From the app bundle
+const modelSource = { bundle: 'selfie_segmenter.tflite' };
+```
+
+For more information on available models, see the [MediaPipe Image Segmenter models documentation](https://ai.google.dev/edge/mediapipe/solutions/vision/image_segmenter/index#models).
+
+## Configuration
+
+You can configure the image segmenter with the following options:
+
+### `ImageSegmenterOptions`
+
+| Option                  | Description                                                                       | Type      | Default |
+| ----------------------- | --------------------------------------------------------------------------------- | --------- | ------- |
+| `runningMode`           | The running mode for the task. Only `IMAGE` mode is supported.                    | `string`  | `IMAGE` |
+| `delegate`              | The delegate to use for inference.                                                | `string`  | `CPU`   |
+| `outputCategoryMask`    | If set to `true`, the output includes a segmentation mask as a uint8 image.       | `boolean` | `false` |
+| `outputConfidenceMasks` | If set to `true`, the output includes a segmentation mask as a float value image. | `boolean` | `true`  |
+| `displayNamesLocale`    | The locale to use for display names provided in the metadata of the task's model. | `string`  | `'en'`  |
+
+### `ImagePreprocessingOptions`
+
+| Option      | Description                                | Type     | Default |
+| ----------- | ------------------------------------------ | -------- | ------- |
+| `rotation`  | The rotation to apply to the image in degrees. | `number` | `0`     |
+
+## Result
+
+The `segment` function returns an `ImageSegmenterResult` object with the following properties:
+
+### `ImageSegmenterResult`
+
+| Property          | Description                                           | Type                 |
+| ----------------- | ----------------------------------------------------- | -------------------- |
+| `categoryMasks`   | A list of category masks, if enabled.                 | `SegmentationMask[]` |
+| `confidenceMasks` | A list of confidence masks, if enabled.               | `SegmentationMask[]` |
+| `timestampMs`     | The timestamp in milliseconds of the image processed. | `number`             |
+
+### `SegmentationMask`
+
+| Property | Description | Type | 
+| --- | --- | --- |
+| `width` | The width of the mask. | `number` |
+| `height` | The height of the mask. | `number` |
+| `mask` | The absolute file path to the temporary image file containing the mask data. | `string` |

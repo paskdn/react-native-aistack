@@ -1,0 +1,106 @@
+---
+title: LLM Inference (Android Only)
+description: Run large language models completely on-device.
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { File, Folder } from 'fumadocs-ui/components/files';
+
+The `useLlmInference` hook lets you run large language models (LLMs) completely on-device, which you can use to perform a wide range of tasks, such as generating text, retrieving information in natural language form, and summarizing documents.
+
+## Usage
+
+Here is a basic example of how to use the `useLlmInference` hook:
+
+```tsx
+import { useLlmInference } from 'react-native-aistack';
+import { View, Button, Text } from 'react-native';
+
+const MyComponent = () => {
+  const { llmInference, isLoading, error } = useLlmInference(
+    { filePath: '/data/local/tmp/llm/model.task' } // Note: LoRA is GPU only
+  );
+
+  const handleGenerate = async () => {
+    if (!llmInference) return;
+    try {
+      // Example: Generate response with text input
+      const result = await llmInference.generateResponse('Hello, world!');
+
+      // Example: Generate response with multimodal input (text + image)
+      // const session = llmInference.createSession();
+      // session.addQueryChunk('What do you see in this image?');
+      // session.addImage({ uri: 'https://example.com/image.jpg' });
+      // const multimodalResult = await session.generateResponse();
+      // console.log('Multimodal Response:', multimodalResult.response);
+      console.log('Response:', result.response);
+    } catch (e) {
+      console.error('Generation failed:', e);
+    }
+  };
+
+  return (
+    <View>
+      <Button
+        title="Generate Response"
+        onPress={handleGenerate}
+        disabled={isLoading || !llmInference}
+      />
+      {isLoading && <Text>Loading model...</Text>}
+      {error && <Text>Error: {error.message}</Text>}
+    </View>
+  );
+};
+```
+
+## Model
+
+The `useLlmInference` hook requires a trained LLM in TFLite format.
+
+### Model Source
+
+You can provide the model using one of the following sources:
+
+- **URI:** The model is hosted on a remote server.
+- **File Path:** The model is stored on the device's file system.
+- **Bundle:** The model is included in your app's assets.
+
+```ts
+// From a remote URL
+const modelSource = { uri: 'https://example.com/model.task' };
+
+// From a local file path
+const modelSource = { filePath: '/path/to/your/model.task' };
+
+// From the app bundle
+const modelSource = { bundle: 'model.task' };
+```
+
+For more information on available models, see the [MediaPipe LLM Inference models documentation](https://ai.google.dev/edge/mediapipe/solutions/genai/llm_inference/index#models).
+
+## Configuration
+
+You can configure the LLM inference engine with the following options:
+
+### `LlmInferenceOptions`
+
+| Option              | Description                                                  | Type       | Default |
+| ------------------- | ------------------------------------------------------------ | ---------- | ------- |
+| `maxTokens`         | The maximum number of tokens for both input and output.      | `number`   | `512`   |
+| `maxTopK`           | The maximum number of top-k tokens to consider.              | `number`   | `40`    |
+| `maxNumImages`      | The maximum number of images allowed in a multimodal prompt. | `number`   | `0`     |
+| `supportedLoraRanks`| The supported LoRA ranks for this model.                     | `number[]` | `[]`    |
+| `visionModelOptions`| Vision model configuration for multimodal models.            | `object`   | `null`  |
+| `preferredBackend`  | The preferred backend for inference ('cpu' or 'gpu').        | `string`   | `'cpu'` |
+
+## Result
+
+The `generateResponse` function returns a `GenerationResult` object with the following properties:
+
+### `GenerationResult`
+
+| Property   | Description                                    | Type               |
+| ---------- | ---------------------------------------------- | ------------------ |
+| `response` | The generated response text.                   | `string`           |
+| `stats`    | The performance statistics for the generation. | `PerformanceStats` |

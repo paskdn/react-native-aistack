@@ -1,0 +1,13 @@
+{
+  "face-detection": "Face Detection",
+  "face-landmark-detection": "Face Landmark Detection",
+  "face-stylization": "Face Stylization",
+  "gesture-recognition": "Gesture Recognition",
+  "hand-landmark-detection": "Hand Landmark Detection",
+  "image-classification": "Image Classification",
+  "image-embedding": "Image Embedding",
+  "image-segmentation": "Image Segmentation",
+  "interactive-segmentation": "Interactive Segmentation",
+  "object-detection": "Object Detection",
+  "pose-landmark-detection": "Pose Landmark Detection"
+}

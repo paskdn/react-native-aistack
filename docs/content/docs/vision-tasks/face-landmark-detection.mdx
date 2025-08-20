@@ -1,0 +1,108 @@
+---
+title: Face Landmark Detection (Android Only)
+description: Detect face landmarks and facial expressions in static images.
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { File, Folder } from 'fumadocs-ui/components/files';
+
+The `useFaceLandmarker` hook lets you detect face landmarks and facial expressions in static images. You can use this hook to identify human facial expressions, apply facial filters and effects, and create virtual avatars.
+
+## Usage
+
+Here is a basic example of how to use the `useFaceLandmarker` hook:
+
+```tsx
+import { useFaceLandmarker, type FaceLandmarkerResult } from 'react-native-aistack';
+import { View, Button, Text } from 'react-native';
+
+const MyComponent = () => {
+  const { detect, isLoading, error } = useFaceLandmarker(
+    { uri: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task' },
+    { numFaces: 1, outputFaceBlendshapes: true }
+  );
+
+  const handleDetect = async () => {
+    try {
+      const result:FaceLandmarkerResult = await detect({ uri: 'https://your-image-url.com/image.jpg' });
+      console.log('Detection result:', result);
+    } catch (e) {
+      console.error('Detection failed:', e);
+    }
+  };
+
+  return (
+    <View>
+      <Button
+        title="Detect Face Landmarks"
+        onPress={handleDetect}
+        disabled={isLoading}
+      />
+      {isLoading && <Text>Loading model...</Text>}
+      {error && <Text>Error: {error.message}</Text>}
+    </View>
+  );
+};
+```
+
+## Model
+
+The `useFaceLandmarker` hook requires a trained face landmarker model in TFLite format.
+
+### Model Source
+
+You can provide the model using one of the following sources:
+
+- **URI:** The model is hosted on a remote server.
+- **File Path:** The model is stored on the device's file system.
+- **Bundle:** The model is included in your app's assets.
+
+```ts
+// From a remote URL
+const modelSource = { uri: 'https://example.com/model.task' };
+
+// From a local file path
+const modelSource = { filePath: '/path/to/your/model.task' };
+
+// From the app bundle
+const modelSource = { bundle: 'face_landmarker.task' };
+```
+
+For more information on available models, see the [MediaPipe Face Landmarker models documentation](https://ai.google.dev/edge/mediapipe/solutions/vision/face_landmarker/index#models).
+
+## Configuration
+
+You can configure the face landmarker with the following options:
+
+### `FaceLandmarkerOptions`
+
+| Option                               | Description                                                                         | Type      | Default |
+| ------------------------------------ | ----------------------------------------------------------------------------------- | --------- | ------- |
+| `runningMode`                        | The running mode for the task. Only `IMAGE` mode is supported.                      | `string`  | `IMAGE` |
+| `numFaces`                           | The maximum number of faces that can be detected.                                   | `number`  | `1`     |
+| `minFaceDetectionConfidence`         | The minimum confidence score for the face detection to be considered successful.    | `number`  | `0.5`   |
+| `minFacePresenceConfidence`          | The minimum confidence score of face presence score in the face landmark detection. | `number`  | `0.5`   |
+| `minTrackingConfidence`              | The minimum confidence score for the face tracking to be considered successful.     | `number`  | `0.5`   |
+| `outputFaceBlendshapes`              | Whether to output face blendshapes for facial expression analysis.                  | `boolean` | `false` |
+| `outputFacialTransformationMatrixes` | Whether to output facial transformation matrices for effects rendering.             | `boolean` | `false` |
+
+### `ImagePreprocessingOptions`
+
+| Option      | Description                                | Type     | Default |
+| ----------- | ------------------------------------------ | -------- | ------- |
+| `rotation`  | The rotation to apply to the image in degrees. | `number` | `0`     |
+
+## Result
+
+The `detect` function returns a `FaceLandmarkerResult` object with the following properties:
+
+### `FaceLandmarkerResult`
+
+| Property                       | Description                                           | Type                           |
+| ------------------------------ | ----------------------------------------------------- | ------------------------------ |
+| `faceLandmarks`                | A list of face landmarks in image coordinates.        | `NormalizedLandmark[][]`       |
+| `faceWorldLandmarks`           | A list of face landmarks in world coordinates.        | `Landmark[][]`       |
+| `faceBlendshapes`              | Face blendshape scores, if enabled.                   | `Classifications[]`            |
+| `facialTransformationMatrixes` | Facial transformation matrices, if enabled.           | `Matrix[]` |
+| `timestampMs`                  | The timestamp in milliseconds of the image processed. | `number`                       |

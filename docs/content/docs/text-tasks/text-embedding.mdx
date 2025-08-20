@@ -1,0 +1,90 @@
+---
+title: Text Embedding (Android Only)
+description: Create a numeric representation of text data to capture its semantic meaning.
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { File, Folder } from 'fumadocs-ui/components/files';
+
+The `useTextEmbedder` hook lets you create a numeric representation of text data to capture its semantic meaning. This functionality is frequently used to compare the semantic similarity of two pieces of text.
+
+## Usage
+
+Here is a basic example of how to use the `useTextEmbedder` hook:
+
+```tsx
+import { useTextEmbedder } from 'react-native-aistack';
+import { View, Button, Text } from 'react-native';
+
+const MyComponent = () => {
+  const { compare, embed, isLoading, error } = useTextEmbedder(
+    { bundle: 'universal_sentence_encoder.tflite' }
+  );
+
+  const handleCompare = async () => {
+    try {
+      // Example: Compare two text strings
+      const similarity = await compare(
+        'it is a charming and often affecting journey',
+        'what a great and fantastic trip'
+      );
+      console.log('Similarity:', similarity);
+    } catch (e) {
+      console.error('Comparison failed:', e);
+    }
+  };
+
+  return (
+    <View>
+      <Button
+        title="Compare Texts"
+        onPress={handleCompare}
+        disabled={isLoading}
+      />
+      {isLoading && <Text>Loading model...</Text>}
+      {error && <Text>Error: {error.message}</Text>}
+    </View>
+  );
+};
+```
+
+## Model
+
+The `useTextEmbedder` hook requires a trained text embedder model in TFLite format.
+
+### Model Source
+
+You can provide the model using one of the following sources:
+
+- **Bundle:** The model is included in your app's assets.
+- **File Path:** The model is stored on the device's file system.
+- **URI:** The model is hosted on a remote server.
+
+```ts
+// From the app bundle
+const modelSource = { bundle: 'universal_sentence_encoder.tflite' };
+
+// From a local file path
+const modelSource = { filePath: '/path/to/your/model.tflite' };
+
+// From a remote URL
+const modelSource = { uri: 'https://example.com/model.tflite' };
+```
+
+For more information on available models, see the [MediaPipe Text Embedder models documentation](https://ai.google.dev/edge/mediapipe/solutions/text/text_embedder/index#models).
+
+## Configuration
+
+You can configure the text embedder with the following options:
+
+### `TextEmbedderOptions`
+
+| Option        | Description                                                                                                                                                           | Type      | Default |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ------- |
+| `l2Normalize` | Whether to normalize the returned feature vector with L2 norm.                                                                                                        | `boolean` | `false` |
+| `quantize`    | Whether the returned embedding should be quantized to bytes via scalar quantization.                                                                                | `boolean` | `false` |
+
+## Result
+
+The `compare` function returns a `number` representing the cosine similarity between two texts. The `embed` function returns a `number[]` representing the embedding of a text.

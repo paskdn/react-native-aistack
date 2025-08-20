@@ -1,0 +1,24 @@
+const path = require('path');
+const pkg = require('../package.json');
+const linkAssets = require('@react-native-community/cli-link-assets');
+
+module.exports = {
+  project: {
+    ios: {
+      automaticPodsInstallation: true,
+    },
+  },
+  dependencies: {
+    [pkg.name]: {
+      root: path.join(__dirname, '..'),
+      platforms: {
+        // Codegen script incorrectly fails without this
+        // So we explicitly specify the platforms with empty object
+        ios: {},
+        android: {},
+      },
+    },
+  },
+  commands: [linkAssets.commands.linkAssets],
+  assets: ['./assets/audio'],
+};

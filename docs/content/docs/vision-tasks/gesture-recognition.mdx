@@ -1,0 +1,118 @@
+---
+title: Gesture Recognition (Android Only)
+description: Recognize hand gestures in static images.
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { File, Folder } from 'fumadocs-ui/components/files';
+
+The `useGestureRecognizer` hook lets you recognize hand gestures in static images, and provides the recognized hand gesture results along with the landmarks of the detected hands.
+
+## Usage
+
+Here is a basic example of how to use the `useGestureRecognizer` hook:
+
+```tsx
+import { useGestureRecognizer, type GestureRecognizerResult } from 'react-native-aistack';
+import { View, Button, Text } from 'react-native';
+
+const MyComponent = () => {
+  const { recognize, isLoading, error } = useGestureRecognizer(
+    { uri: 'https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/latest/gesture_recognizer.task' },
+    { numHands: 1 }
+  );
+
+  const handleRecognize = async () => {
+    try {
+      const result:GestureRecognizerResult = await recognize({ uri: 'https://your-image-url.com/image.jpg' });
+      console.log('Recognition result:', result);
+    } catch (e) {
+      console.error('Recognition failed:', e);
+    }
+  };
+
+  return (
+    <View>
+      <Button
+        title="Recognize Gesture"
+        onPress={handleRecognize}
+        disabled={isLoading}
+      />
+      {isLoading && <Text>Loading model...</Text>}
+      {error && <Text>Error: {error.message}</Text>}
+    </View>
+  );
+};
+```
+
+## Model
+
+The `useGestureRecognizer` hook requires a trained gesture recognizer model in TFLite format.
+
+### Model Source
+
+You can provide the model using one of the following sources:
+
+- **URI:** The model is hosted on a remote server.
+- **File Path:** The model is stored on the device's file system.
+- **Bundle:** The model is included in your app's assets.
+
+```ts
+// From a remote URL
+const modelSource = { uri: 'https://example.com/model.task' };
+
+// From a local file path
+const modelSource = { filePath: '/path/to/your/model.task' };
+
+// From the app bundle
+const modelSource = { bundle: 'gesture_recognizer.task' };
+```
+
+For more information on available models, see the [MediaPipe Gesture Recognizer models documentation](https://ai.google.dev/edge/mediapipe/solutions/vision/gesture_recognizer/index#models).
+
+## Configuration
+
+You can configure the gesture recognizer with the following options:
+
+### `GestureRecognizerOptions`
+
+| Option                       | Description                                                                         | Type     | Default |
+| ---------------------------- | ----------------------------------------------------------------------------------- | -------- | ------- |
+| `runningMode`                | The running mode for the task. Only `IMAGE` mode is supported.                      | `string` | `IMAGE` |
+| `numHands`                   | The maximum number of hands that can be detected.                                   | `number` | `1`     |
+| `minHandDetectionConfidence` | The minimum confidence score for the hand detection to be considered successful.    | `number` | `0.5`   |
+| `minHandPresenceConfidence`  | The minimum confidence score of hand presence score in the hand landmark detection. | `number` | `0.5`   |
+| `minTrackingConfidence`      | The minimum confidence score for the hand tracking to be considered successful.     | `number` | `0.5`   |
+| `cannedGesturesClassifierOptions` | Options for the canned gestures classifier. | `ClassifierOptions` | `{}` |
+| `customGesturesClassifierOptions` | Options for the custom gestures classifier. | `ClassifierOptions` | `{}` |
+
+### `ImagePreprocessingOptions`
+
+| Option      | Description                                | Type     | Default |
+| ----------- | ------------------------------------------ | -------- | ------- |
+| `rotation`  | The rotation to apply to the image in degrees. | `number` | `0`     |
+
+### `ClassifierOptions`
+
+| Option               | Description                                                                 | Type       | Default       |
+| -------------------- | --------------------------------------------------------------------------- | ---------- | ------------- |
+| `maxResults`         | The maximum number of top-scored classification results to return.          | `number`   | `-1`          |
+| `scoreThreshold`     | The prediction score threshold. Results below this value are rejected.      | `number`   | `0.0`         |
+| `categoryAllowlist`  | An optional list of allowed category names.                                 | `string[]` | `[]`          |
+| `categoryDenylist`   | An optional list of denied category names.                                  | `string[]` | `[]`          |
+| `displayNamesLocale` | The locale to use for display names specified in the TFLite Model Metadata. | `string`   | `'en'`        |
+
+## Result
+
+The `recognize` function returns a `GestureRecognizerResult` object with the following properties:
+
+### `GestureRecognizerResult`
+
+| Property         | Description                                           | Type                       |
+| ---------------- | ----------------------------------------------------- | -------------------------- |
+| `handedness`     | Handedness of detected hands.                         | `Category[][]`             |
+| `gestures`       | Recognized gesture categories.                        | `Category[][]`             |
+| `landmarks`      | Hand landmarks in image coordinates.                  | `NormalizedLandmark[][][]` |
+| `worldLandmarks` | Hand landmarks in world coordinates.                  | `Landmark[][][]` |
+| `timestampMs`    | The timestamp in milliseconds of the image processed. | `number`                   |

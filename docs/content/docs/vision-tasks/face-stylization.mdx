@@ -1,0 +1,93 @@
+---
+title: Face Stylization (Android Only)
+description: Apply face stylizations to faces in an image.
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { File, Folder } from 'fumadocs-ui/components/files';
+
+The `useFaceStylizer` hook lets you apply face stylizations to faces in an image. You can use this hook to create virtual avatars in various styles.
+
+## Usage
+
+Here is a basic example of how to use the `useFaceStylizer` hook:
+
+```tsx
+import { useFaceStylizer, type FaceStylizerResult } from 'react-native-aistack';
+import { View, Button, Text, Image } from 'react-native';
+
+const MyComponent = () => {
+  const { stylize, isLoading, error } = useFaceStylizer(
+    { uri: 'https://storage.googleapis.com/mediapipe-models/face_stylizer/blaze_face_stylizer/float32/latest/face_stylizer_color_sketch.task' }
+  );
+
+  const handleStylize = async () => {
+    try {
+      const result:FaceStylizerResult = await stylize({ uri: 'https://your-image-url.com/image.jpg' });
+      console.log('Stylization result:', result);
+    } catch (e) {
+      console.error('Stylization failed:', e);
+    }
+  };
+
+  return (
+    <View>
+      <Button
+        title="Stylize Face"
+        onPress={handleStylize}
+        disabled={isLoading}
+      />
+      {isLoading && <Text>Loading model...</Text>}
+      {error && <Text>Error: {error.message}</Text>}
+    </View>
+  );
+};
+```
+
+## Model
+
+The `useFaceStylizer` hook requires a trained face stylization model in TFLite format.
+
+### Model Source
+
+You can provide the model using one of the following sources:
+
+- **URI:** The model is hosted on a remote server.
+- **File Path:** The model is stored on the device's file system.
+- **Bundle:** The model is included in your app's assets.
+
+```ts
+// From a remote URL
+const modelSource = { uri: 'https://example.com/model.task' };
+
+// From a local file path
+const modelSource = { filePath: '/path/to/your/model.task' };
+
+// From the app bundle
+const modelSource = { bundle: 'face_stylizer_color_sketch.task' };
+```
+
+For more information on available models, see the [MediaPipe Face Stylizer models documentation](https://ai.google.dev/edge/mediapipe/solutions/vision/face_stylizer/index#models).
+
+## Configuration
+
+You can configure the face stylizer with the following options:
+
+### `FaceStylizerOptions`
+
+| Option        | Description                                | Type     | Default |
+| ------------- | ------------------------------------------ | -------- | ------- |
+| `runningMode` | The running mode for the task.             | `string` | `IMAGE` |
+| `delegate`    | The hardware acceleration delegate.        | `string` | `CPU`   |
+
+## Result
+
+The `stylize` function returns a `FaceStylizerResult` object with the following properties:
+
+### `FaceStylizerResult`
+
+| Property        | Description                                           | Type          |
+| --------------- | ----------------------------------------------------- | ------------- |
+| `stylizedImagePath` | The path to the stylized image file.            | `string` |
+| `timestampMs`   | The timestamp in milliseconds of the image processed. | `number`      |

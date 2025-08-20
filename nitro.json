@@ -1,0 +1,65 @@
+{
+  "cxxNamespace": ["aistack"],
+  "ios": {
+    "iosModuleName": "Aistack"
+  },
+  "android": {
+    "androidNamespace": ["aistack"],
+    "androidCxxLibName": "aistack"
+  },
+  "autolinking": {
+    "Aistack": {
+      "kotlin": "Aistack"
+    },
+    "TextClassifier":{
+      "kotlin": "TextClassifier"
+    },
+    "LanguageDetector":{
+      "kotlin": "LanguageDetector"
+    },
+    "TextEmbedder":{
+      "kotlin": "TextEmbedder"
+    },
+    "AudioClassifier":{
+      "kotlin": "AudioClassifier"
+    },
+    "LlmInference": {
+      "kotlin": "LlmInference"
+    },
+    "ObjectDetector":{
+      "kotlin": "ObjectDetector"
+    },
+    "PoseLandmarker":{
+      "kotlin": "PoseLandmarker"
+    },
+    "FaceDetector":{
+      "kotlin": "FaceDetector"
+    },
+    "FaceLandmarker":{
+      "kotlin": "FaceLandmarker"
+    },
+    "FaceStylizer":{
+      "kotlin": "FaceStylizer"
+    },
+    "GestureRecognizer":{
+      "kotlin": "GestureRecognizer"
+    },
+    "HandLandmarker":{
+      "kotlin": "HandLandmarker"
+    },
+    "ImageClassifier":{
+      "kotlin": "ImageClassifier"
+    },
+    "ImageEmbedder":{
+      "kotlin": "ImageEmbedder"
+    },
+    "ImageSegmenter":{
+      "kotlin": "ImageSegmenter"
+    },
+    "InteractiveSegmenter":{
+      "kotlin": "InteractiveSegmenter"
+    }
+  },
+  "ignorePaths": ["node_modules"],
+  "gitAttributesGeneratedFlag": true
+}

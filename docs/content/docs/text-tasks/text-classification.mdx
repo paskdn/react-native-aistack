@@ -1,0 +1,110 @@
+---
+title: Text Classification (Android Only)
+description: Classify text into a set of defined categories.
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { File, Folder } from 'fumadocs-ui/components/files';
+
+
+The `useTextClassifier` hook lets you classify text into a set of defined categories, such as positive or negative sentiment.
+
+
+
+## Usage
+
+Here is a basic example of how to use the `useTextClassifier` hook:
+
+```tsx
+import { useTextClassifier } from 'react-native-aistack';
+import { View, Button, Text } from 'react-native';
+
+const MyComponent = () => {
+  const { classify, data, isLoading, error } = useTextClassifier(
+    { bundle: 'bert_classifier.tflite' },
+    { maxResults: 5 }
+  );
+
+  const handleClassify = async () => {
+    try {
+      // Example: Classify a text string
+      const result = await classify('This is an amazing movie!');
+      console.log('Classification result:', result);
+    } catch (e) {
+      console.error('Classification failed:', e);
+    }
+  };
+
+  return (
+    <View>
+      <Button
+        title="Classify Text"
+        onPress={handleClassify}
+        disabled={isLoading}
+      />
+      {isLoading && <Text>Loading model...</Text>}
+      {error && <Text>Error: {error.message}</Text>}
+      {data && (
+        <View>
+          <Text>Results:</Text>
+          {data.classifications.map((category, index) => (
+            <Text key={index}>
+              {category.displayName}: {category.score.toFixed(2)}
+            </Text>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+};
+```
+
+## Model
+
+The `useTextClassifier` hook requires a trained text classification model in TFLite format.
+
+### Model Source
+
+You can provide the model using one of the following sources:
+
+- **Bundle:** The model is included in your app's assets.
+- **File Path:** The model is stored on the device's file system.
+- **URI:** The model is hosted on a remote server.
+
+```ts
+// From the app bundle
+const modelSource = { bundle: 'bert_classifier.tflite' };
+
+// From a local file path
+const modelSource = { filePath: '/path/to/your/model.tflite' };
+
+// From a remote URL
+const modelSource = { uri: 'https://example.com/model.tflite' };
+```
+
+For more information on available models, see the [MediaPipe Text Classifier models documentation](https://ai.google.dev/edge/mediapipe/solutions/text/text_classifier/index#models).
+
+## Configuration
+
+You can configure the text classifier with the following options:
+
+### `TextClassifierOptions`
+
+| Option               | Description                                                                                                                                                           | Type       | Default       |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------------- |
+| `maxResults`         | The maximum number of top-scored classification results to return.                                                                                                    | `number`   | `-1`          |
+| `scoreThreshold`     | The prediction score threshold. Results below this value are rejected.                                                                                                | `number`   | `0.0`         |
+| `categoryAllowlist`  | An optional list of allowed category names.                                                                                                                           | `string[]` | `[]`          |
+| `categoryDenylist`   | An optional list of denied category names.                                                                                                                            | `string[]` | `[]`          |
+| `displayNamesLocale` | The locale to use for display names specified in the TFLite Model Metadata.                                                                                           | `string`   | `'en'`        |
+
+## Result
+
+The `classify` function returns a `TextClassifierResult` object with the following properties:
+
+### `TextClassifierResult`
+
+| Property          | Description                                                              | Type         |
+| ----------------- | ------------------------------------------------------------------------ | ------------ |
+| `classifications` | A list of classifications, sorted by score in descending order.          | `Category[]` |

@@ -1,0 +1,17 @@
+{
+  "migIndex": 2,
+  "data": [
+    {
+      "path": "assets/audio/car-horn.wav",
+      "sha1": "0aa2f2d67b288a3248b7f37fc48d977a8dd7d3fd"
+    },
+    {
+      "path": "assets/audio/gunshots.wav",
+      "sha1": "4705e922c8026f6f903ccaf22dbae4fff512a2d5"
+    },
+    {
+      "path": "assets/audio/snoring.wav",
+      "sha1": "d3e65ca842a2b30ea103753fb53411494d986c40"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "index": "Overview",
+  "USAGE": "Usage Guide",
+  "generative-ai-tasks": {
+    "type": "folder",
+    "title": "Generative AI tasks",
+    "index": "llm-inference"
+  },
+  "vision-tasks": {
+    "type": "folder", 
+    "title": "Vision tasks",
+    "index": "object-detection"
+  },
+  "text-tasks": {
+    "type": "folder",
+    "title": "Text tasks", 
+    "index": "text-classification"
+  },
+  "audio-tasks": {
+    "type": "folder",
+    "title": "Audio tasks",
+    "index": "audio-classification"
+  }
+} 

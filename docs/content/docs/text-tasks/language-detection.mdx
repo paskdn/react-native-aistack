@@ -1,0 +1,108 @@
+---
+title: Language Detection (Android Only)
+description: Identify the language of a piece of text.
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { File, Folder } from 'fumadocs-ui/components/files';
+
+
+The `useLanguageDetector` hook lets you identify the language of a piece of text.
+
+
+
+## Usage
+
+Here is a basic example of how to use the `useLanguageDetector` hook:
+
+```tsx
+import { useLanguageDetector } from 'react-native-aistack';
+import { View, Button, Text } from 'react-native';
+
+const MyComponent = () => {
+  const { detect, data, isLoading, error } = useLanguageDetector(
+    { bundle: 'language_detector.tflite' }
+  );
+
+  const handleDetect = async () => {
+    try {
+      // Example: Detect language from a text string
+      const result = await detect('This is a test sentence.');
+      console.log('Detection result:', result);
+    } catch (e) {
+      console.error('Detection failed:', e);
+    }
+  };
+
+  return (
+    <View>
+      <Button
+        title="Detect Language"
+        onPress={handleDetect}
+        disabled={isLoading}
+      />
+      {isLoading && <Text>Loading model...</Text>}
+      {error && <Text>Error: {error.message}</Text>}
+      {data && (
+        <View>
+          <Text>Results:</Text>
+          {data.languages.map((prediction, index) => (
+            <Text key={index}>
+              {prediction.languageCode}: {prediction.confidence.toFixed(2)}
+            </Text>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+};
+```
+
+## Model
+
+The `useLanguageDetector` hook requires a trained language detector model in TFLite format.
+
+### Model Source
+
+You can provide the model using one of the following sources:
+
+- **Bundle:** The model is included in your app's assets.
+- **File Path:** The model is stored on the device's file system.
+- **URI:** The model is hosted on a remote server.
+
+```ts
+// From the app bundle
+const modelSource = { bundle: 'language_detector.tflite' };
+
+// From a local file path
+const modelSource = { filePath: '/path/to/your/model.tflite' };
+
+// From a remote URL
+const modelSource = { uri: 'https://example.com/model.tflite' };
+```
+
+For more information on available models, see the [MediaPipe Language Detector models documentation](https://ai.google.dev/edge/mediapipe/solutions/text/language_detector/index#models).
+
+## Configuration
+
+You can configure the language detector with the following options:
+
+### `LanguageDetectorOptions`
+
+| Option              | Description                                                                                                                                                           | Type       | Default |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------- |
+| `scoreThreshold`    | The prediction score threshold. Results below this value are rejected.                                                                                                | `number`   | `0.0`   |
+| `maxResults`        | The maximum number of top-scored language predictions to return.                                                                                                      | `number`   | `-1`    |
+| `categoryAllowlist` | An optional list of allowed language codes.                                                                                                                           | `string[]` | `[]`    |
+| `categoryDenylist`  | An optional list of denied language codes.                                                                                                                            | `string[]` | `[]`    |
+
+## Result
+
+The `detect` function returns a `LanguageDetectorResult` object with the following properties:
+
+### `LanguageDetectorResult`
+
+| Property    | Description                                                       | Type                  |
+| ----------- | ----------------------------------------------------------------- | --------------------- |
+| `languages` | A list of detected languages, sorted by confidence in descending order. | `LanguagePrediction[]` |
